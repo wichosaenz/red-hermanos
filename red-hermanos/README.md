@@ -1,89 +1,61 @@
-# Red Hermanos — Cross-Site Related Posts
+# Red Hermanos — Artículos Relacionados entre Sitios
 
-Display layer for a legitimate editorial network of 20 WordPress sites. Red
-Hermanos **receives** a weekly set of recommended sibling articles (pushed by an
-n8n workflow via REST API), **stores** them in its own table, and **renders**
-them on the front end in a theme-adaptive block.
+Capa de visualización para una red editorial de 20 sitios WordPress. Red Hermanos
+**recibe** cada semana, vía REST API, el conjunto de artículos hermanos
+recomendados (que le envía el flujo de n8n `WF4 — Red Hermanos Distributor`), los
+**almacena** en su propia tabla y los **muestra** en el frontend con un bloque
+que se adapta al tema activo.
 
-It does **not** query Pinecone, generate recommendations, or emit any JSON-LD /
-schema — structured data is injected elsewhere by the orchestrator. This plugin
-is purely the display + receive layer, functionally equivalent to Jetpack
-Related Posts but across affiliated sites of the same group.
+No consulta Pinecone, no genera recomendaciones y **no imprime ningún JSON-LD /
+schema** — de eso se encarga el orquestador externo. Es únicamente la capa de
+recepción + display, equivalente funcional a *Jetpack Related Posts* pero entre
+sitios afiliados del mismo grupo.
 
 - **PHP:** 7.4 – 8.3
-- **WordPress:** 5.8+ (tested with 6.x and 7.x)
-- **No dependencies:** no Composer, no jQuery, no external CSS/JS, no CDNs.
+- **WordPress:** 5.8+ (probado en 6.x y 7.x)
+- **Sin dependencias:** sin Composer, sin jQuery (en el front), sin CSS/JS
+  externos, sin CDNs.
 
-## Architecture
+## Arquitectura
 
 ```
-n8n (WF4 — Red Hermanos Distributor)  --POST /sync-->  [ red-hermanos table ]
+n8n (WF4 — Red Hermanos Distributor)  --POST /sync-->  [ tabla red_hermanos ]
                                                               |
-   front end  <--  RH_Renderer::render($args)  <-------------+
-   (placements / widget / shortcode / template tag / /render endpoint)
+   frontend  <--  RH_Renderer::render($args)  <--------------+
+   (placements / widget / shortcode / template tag / endpoint /render)
 ```
 
-Every entry point funnels through a single args-driven engine
-(`RH_Renderer::render()`), so the five placement methods share the exact same
-rendering and image-handling logic:
+Todos los puntos de entrada pasan por un único motor de render
+(`RH_Renderer::render()`), de modo que las cinco vías de colocación comparten la
+misma lógica de renderizado e imágenes:
 
-1. **Widget** — `Red Hermanos` widget for any sidebar/footer area.
-2. **Placements** — auto-insert by hook: before/after content, header
-   (`wp_body_open`), footer (`wp_footer`), each with per-zone options.
+1. **Widget** — para cualquier área de sidebar o footer.
+2. **Placements** — auto-inserción por hook: antes/después del contenido,
+   cabecera (`wp_body_open`) y pie (`wp_footer`), con opciones por zona.
 3. **Shortcode** — `[red_hermanos]`.
-4. **Template tag** — `red_hermanos( $args )` for theme files.
-5. **Render endpoint** — public read-only `/render` + `rh-embed.js` for on-demand
-   loading (e.g. to bypass page cache in "fresh" zones).
+4. **Template tag** — `red_hermanos( $args )` para archivos del tema.
+5. **Endpoint de render** — `/render` público de solo lectura + `rh-embed.js`.
 
-## Installation
+## Instalación
 
-**A) Upload the ZIP (recommended)**
+1. Sube `red-hermanos.zip` en **Plugins → Añadir nuevo → Subir plugin** →
+   **Instalar ahora** → **Activar**. (No uses el botón «Download ZIP» de GitHub:
+   anida las carpetas y WordPress no encuentra el plugin.)
+2. O clona el repo dentro de `wp-content/plugins/`.
 
-Get `red-hermanos.zip` in any of these ways:
+Al activar se crea la tabla `{prefix}red_hermanos` y se siembran las opciones por
+defecto.
 
-- **From a GitHub Release** — the `v*` tags publish a Release with the installable
-  `red-hermanos.zip` attached (permanent download link).
-- **From GitHub Actions** — every push runs the *Build plugin ZIP* workflow; open
-  the run and download the `red-hermanos-plugin` artifact.
-- **Locally** — run `./build.sh` → produces `red-hermanos.zip`.
+## Configuración
 
-> Do **not** use GitHub's green **Code → Download ZIP** button: it nests the repo
-> in an extra folder, so WordPress can't find the plugin header. Use one of the
-> options above.
+1. Crea una **Contraseña de aplicación** para un usuario con `edit_posts`
+   (*Usuarios → Perfil → Contraseñas de aplicación*). n8n la usa como Basic Auth.
+2. Abre el menú **Red Hermanos** y configura las pestañas General, Placements,
+   Widgets & Shortcode, Status y Tools.
 
-Then in wp-admin: **Plugins → Add New → Upload Plugin** → choose
-`red-hermanos.zip` → **Install Now** → **Activate**.
+## Contrato de datos (`POST /wp-json/red-hermanos/v1/sync`)
 
-**B) Git clone**
-
-```bash
-cd wp-content/plugins/
-git clone https://github.com/wichosaenz/red-hermanos.git
-# The plugin lives in red-hermanos/red-hermanos/ — move it up one level:
-mv red-hermanos/red-hermanos ./red-hermanos-plugin && rm -rf red-hermanos && mv red-hermanos-plugin red-hermanos
-```
-
-On activation the plugin creates the `{prefix}red_hermanos` table and seeds
-default options.
-
-## Configuration
-
-1. **Create an Application Password** for a user with `edit_posts` capability:
-   *Users → Profile → Application Passwords*. n8n uses it as Basic Auth.
-2. Open **Red Hermanos** in the admin menu:
-   - **General** — default format, count, heading, accent color (empty =
-     inherit theme), and the **Images** section (show thumbnails, fallback
-     image, broken-image behavior).
-   - **Placements** — enable/configure each zone (after/before content,
-     header, footer) with per-zone overrides + live preview.
-   - **Widgets & Shortcode** — copyable snippets.
-   - **Status** — health info + endpoint URLs, `/status` test, cache purge.
-   - **Tools** — preview each format.
-
-## Data contract (`POST /wp-json/red-hermanos/v1/sync`)
-
-Basic Auth (Application Password). Body (Spanish field names, exactly as n8n
-sends them):
+Basic Auth (Contraseña de aplicación). Cuerpo JSON (campos en español):
 
 ```json
 {
@@ -107,48 +79,56 @@ sends them):
 }
 ```
 
-Response: `{ success, semana, inserted, total_sent, timestamp }`.
+Respuesta: `{ success, semana, inserted, total_sent, timestamp }`.
+`thumbnail_url` puede venir vacío — el render degrada sin imagen rota.
 
-`thumbnail_url` may be empty — the render degrades gracefully (no broken image).
-
-### Example `curl`
+### Ejemplo con `curl`
 
 ```bash
 curl -X POST "https://sitio.com/wp-json/red-hermanos/v1/sync" \
-  -u "usuario:APPLICATION_PASSWORD" \
+  -u "usuario:CONTRASENA_DE_APLICACION" \
   -H "Content-Type: application/json" \
   -d '{"semana_iso":"2026-W33","articulos":[{"post_url":"https://hermano.com/a/","post_title":"…","site_url":"https://hermano.com","site_name":"Hermano","posicion":1}]}'
 ```
 
-### Other endpoints
+### Otros endpoints
 
-- `GET /wp-json/red-hermanos/v1/status` (auth) — `{ plugin_version,
+- `GET /wp-json/red-hermanos/v1/status` (con auth) — `{ plugin_version,
   active_articles, latest_sync, current_week, site_url }`.
-- `GET /wp-json/red-hermanos/v1/render?format=ticker&count=5&thumbs=0` (public,
-  read-only) — returns `{ format, count, html }` with pre-escaped markup.
+- `GET /wp-json/red-hermanos/v1/render?format=ticker&count=5&thumbs=0` (público,
+  solo lectura) — devuelve `{ format, count, html }` con marcado escapado.
 
-## Formats
+## Formatos
 
-- `cards_grid` — primary, fully polished (3→2→1 responsive grid).
-- `ticker`, `carousel`, `marquee`, `in_post` — functional-but-minimal in v1.0
-  (marked `// TODO v1.1`); they render without breaking.
+- `cards_grid` — principal, pulido (grid responsive 3→2→1).
+- `ticker`, `carousel`, `marquee`, `in_post` — funcionales pero mínimos en v1.0
+  (`// TODO v1.1`); renderizan sin romper.
 
-## Security model
+## Control de imágenes
 
-- Sync receives **structured text only** — sanitized on the way in
-  (`sanitize_text_field` / `sanitize_textarea_field` / `esc_url_raw`). Never
-  stores or executes HTML/markup/code.
-- All front-end output is built from those fields and **escaped** on render
-  (`esc_html` / `esc_attr` / `esc_url`).
-- No `eval`, no remote code, no outbound requests (the only front-end `fetch` is
-  to this site's own `/render`).
-- Write endpoints use native **Application Passwords** +
-  `current_user_can('edit_posts')`. The public `/render` endpoint validates
-  `format` against a whitelist and exposes only already-public data.
+Una miniatura solo se muestra si, en cascada, `show_thumbnails` (zona o global)
+está activo **y** hay `thumbnail_url` o `fallback_image`; si no, la card sale en
+**modo texto** sin hueco. En runtime, `rh-images.js` reacciona al `onerror` y
+aplica el modo (*usar reserva* / *ocultar imagen* / *ocultar card*), de forma que
+**nunca** se ve una imagen rota.
 
-## Compatibility notes
+## Modelo de seguridad
 
-- Works with the **classic editor** (no Gutenberg/block.json dependency).
-- Emits **no JSON-LD / schema** (avoids duplicating externally-injected data).
-- Purges **Breeze** cache after each sync when present.
-- Loads only `rh-theme.css` + the CSS/JS of the format actually in use.
+- Sincronización recibe **solo texto estructurado**, saneado al entrar; nunca
+  almacena ni ejecuta HTML/marcado/código.
+- Toda salida se **escapa al renderizar** (`esc_html` / `esc_attr` / `esc_url`).
+- Sin `eval`, sin código remoto, sin peticiones salientes (el único `fetch` del
+  front es al propio `/render`).
+- Escritura con **Contraseñas de aplicación** + `current_user_can('edit_posts')`.
+  `/render` valida `format` contra whitelist y solo lee datos ya públicos.
+
+## Compatibilidad
+
+- Editor clásico (sin depender de Gutenberg).
+- No emite JSON-LD/schema propio.
+- Purga caché de Breeze tras cada sync (si existe).
+- Carga solo `rh-theme.css` + el CSS/JS del formato en uso.
+
+## Licencia
+
+GPL-2.0-or-later (declarado en el encabezado del plugin).
