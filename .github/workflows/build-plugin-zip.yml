@@ -1,0 +1,56 @@
+name: Build plugin ZIP
+
+# Produces an installable red-hermanos.zip (first level: red-hermanos/red-hermanos.php).
+#
+#  - Every push / manual run  -> uploads the ZIP as a downloadable workflow artifact.
+#  - Pushing a tag like v1.0.0 -> also publishes a GitHub Release with the ZIP attached
+#                                 (a permanent direct download link).
+on:
+  push:
+    branches:
+      - main
+      - 'claude/**'
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate PHP syntax
+        run: |
+          find red-hermanos -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Build ZIP
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Verify ZIP structure
+        run: |
+          echo "First-level entries:"
+          unzip -l red-hermanos.zip
+          # Fail if the plugin main file is not at red-hermanos/red-hermanos.php
+          unzip -l red-hermanos.zip | grep -q "red-hermanos/red-hermanos.php" \
+            || { echo "::error::Plugin main file not at expected path"; exit 1; }
+
+      - name: Upload ZIP as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: red-hermanos-plugin
+          path: red-hermanos.zip
+          if-no-files-found: error
+
+      - name: Publish Release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: red-hermanos.zip
+          generate_release_notes: true

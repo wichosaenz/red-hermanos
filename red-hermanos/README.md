@@ -39,9 +39,20 @@ rendering and image-handling logic:
 
 **A) Upload the ZIP (recommended)**
 
-1. Build the package: `./build.sh` → produces `red-hermanos.zip`.
-2. In wp-admin: **Plugins → Add New → Upload Plugin** → choose `red-hermanos.zip`
-   → **Install Now** → **Activate**.
+Get `red-hermanos.zip` in any of these ways:
+
+- **From a GitHub Release** — the `v*` tags publish a Release with the installable
+  `red-hermanos.zip` attached (permanent download link).
+- **From GitHub Actions** — every push runs the *Build plugin ZIP* workflow; open
+  the run and download the `red-hermanos-plugin` artifact.
+- **Locally** — run `./build.sh` → produces `red-hermanos.zip`.
+
+> Do **not** use GitHub's green **Code → Download ZIP** button: it nests the repo
+> in an extra folder, so WordPress can't find the plugin header. Use one of the
+> options above.
+
+Then in wp-admin: **Plugins → Add New → Upload Plugin** → choose
+`red-hermanos.zip` → **Install Now** → **Activate**.
 
 **B) Git clone**
 
