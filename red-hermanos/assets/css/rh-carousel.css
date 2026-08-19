@@ -1,0 +1,57 @@
+/**
+ * Red Hermanos — carousel format (functional-but-minimal, v1.0).
+ * // TODO v1.1: pagination dots, autoplay, smoother snap.
+ */
+
+.rh-carousel {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.rh-carousel__viewport {
+	overflow: hidden;
+	flex: 1 1 auto;
+}
+
+.rh-carousel__track {
+	display: flex;
+	gap: var(--rh-gap);
+	transition: transform 0.35s ease;
+	will-change: transform;
+}
+
+.rh-carousel__slide {
+	flex: 0 0 calc(33.333% - var(--rh-gap));
+	min-width: 0;
+}
+
+.rh-carousel__nav {
+	flex: 0 0 auto;
+	border: 1px solid var(--rh-border);
+	background: var(--rh-surface);
+	color: var(--rh-accent);
+	border-radius: 50%;
+	width: 2.25rem;
+	height: 2.25rem;
+	font-size: 1.4rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.rh-carousel__nav:hover {
+	background: var(--rh-accent);
+	color: #fff;
+}
+
+@media (max-width: 768px) {
+	.rh-carousel__slide {
+		flex-basis: calc(50% - var(--rh-gap));
+	}
+}
+
+@media (max-width: 480px) {
+	.rh-carousel__slide {
+		flex-basis: 100%;
+	}
+}
