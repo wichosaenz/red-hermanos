@@ -1,0 +1,106 @@
+/**
+ * Red Hermanos — cards_grid format (the primary, polished layout).
+ * Also styles the in_post format (shared card look).
+ */
+
+.rh-cards-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: var(--rh-gap);
+}
+
+.rh-card {
+	background: var(--rh-surface);
+	border: 1px solid var(--rh-border);
+	border-radius: var(--rh-radius);
+	overflow: hidden;
+	transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.rh-card:hover {
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+	transform: translateY(-2px);
+}
+
+/* Thumbnail with a fixed 1.75:1 ratio (padding-top:57.14%). */
+.rh-card__thumb {
+	display: block;
+	position: relative;
+	width: 100%;
+	padding-top: 57.14%;
+	background: rgba(0, 0, 0, 0.04);
+	overflow: hidden;
+}
+
+.rh-card__thumb img {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.rh-card__body {
+	display: block;
+	padding: 0.9rem 1rem 1.1rem;
+}
+
+/* Title max 3 lines, excerpt max 2 lines. */
+.rh-card__title {
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.rh-card__excerpt {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+/* Text-only card: balanced padding, no image slot. */
+.rh-card--noimg .rh-card__body {
+	padding: 1rem;
+}
+
+/* -------------------------------------------------------------------------
+ * Responsive: 3 -> 2 (<=768px) -> 1 (<=480px, row layout with left thumb).
+ * ---------------------------------------------------------------------------
+ */
+@media (max-width: 768px) {
+	.rh-cards-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 480px) {
+	.rh-cards-grid {
+		grid-template-columns: 1fr;
+	}
+
+	/* Card becomes a horizontal row with the thumb on the left. */
+	.rh-cards-grid .rh-card__link {
+		display: flex;
+		align-items: stretch;
+	}
+
+	.rh-cards-grid .rh-card__thumb {
+		flex: 0 0 40%;
+		padding-top: 0;
+		min-height: 96px;
+	}
+
+	.rh-cards-grid .rh-card--noimg .rh-card__link {
+		display: block;
+	}
+}
+
+/* in_post format: compact single-column stack. */
+.rh-format--in_post .rh-in-post {
+	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: 1fr;
+}

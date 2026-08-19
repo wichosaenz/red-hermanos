@@ -1,0 +1,231 @@
+# Copyright (C) 2026 Everest Ecosystem
+# This file is distributed under the GPL-2.0-or-later license.
+msgid ""
+msgstr ""
+"Project-Id-Version: Red Hermanos 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/wichosaenz/red-hermanos/issues\n"
+"Last-Translator: Everest Ecosystem\n"
+"Language-Team: Everest Ecosystem\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-08-19T00:00:00+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: Red Hermanos POT tool\n"
+"X-Domain: red-hermanos\n"
+"Language: \n"
+
+#. Plugin Name of the plugin
+msgid "Red Hermanos — Cross-Site Related Posts"
+msgstr ""
+
+#. Description of the plugin
+msgid "Muestra artículos relacionados de los sitios hermanos de la red, alimentado semanalmente por n8n vía REST API."
+msgstr ""
+
+msgid "Red Hermanos"
+msgstr ""
+
+msgid "Cross-site related posts from your sibling network."
+msgstr ""
+
+msgid "From Our Network"
+msgstr ""
+
+msgid "General"
+msgstr ""
+
+msgid "Placements"
+msgstr ""
+
+msgid "Widgets & Shortcode"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Tools"
+msgstr ""
+
+msgid "Defaults"
+msgstr ""
+
+msgid "Default format"
+msgstr ""
+
+msgid "How many cards (1-9)"
+msgstr ""
+
+msgid "Heading text"
+msgstr ""
+
+msgid "Accent color"
+msgstr ""
+
+msgid "Leave empty to inherit the theme accent (YITH Proteo)."
+msgstr ""
+
+msgid "Open links in new tab"
+msgstr ""
+
+msgid "Yes"
+msgstr ""
+
+msgid "Vertical filter"
+msgstr ""
+
+msgid "All verticals"
+msgstr ""
+
+msgid "Images"
+msgstr ""
+
+msgid "Show thumbnails"
+msgstr ""
+
+msgid "Master toggle for images (text-only cards when off)."
+msgstr ""
+
+msgid "Fallback image"
+msgstr ""
+
+msgid "Choose image"
+msgstr ""
+
+msgid "Used when an article has no thumbnail (and broken-image mode is \"Use fallback\")."
+msgstr ""
+
+msgid "Broken image behavior"
+msgstr ""
+
+msgid "Use fallback"
+msgstr ""
+
+msgid "Hide image (text-only card)"
+msgstr ""
+
+msgid "Hide the whole card"
+msgstr ""
+
+msgid "Live preview"
+msgstr ""
+
+msgid "Preview"
+msgstr ""
+
+msgid "After content"
+msgstr ""
+
+msgid "Before content"
+msgstr ""
+
+msgid "Header (site top)"
+msgstr ""
+
+msgid "Footer"
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "Format"
+msgstr ""
+
+msgid "Count (1-9)"
+msgstr ""
+
+msgid "Heading (optional)"
+msgstr ""
+
+msgid "Display scope"
+msgstr ""
+
+msgid "Single posts"
+msgstr ""
+
+msgid "Front page"
+msgstr ""
+
+msgid "Everywhere (front-end)"
+msgstr ""
+
+msgid "(inherit global)"
+msgstr ""
+
+msgid "Widget"
+msgstr ""
+
+msgid "Snippets"
+msgstr ""
+
+msgid "Shortcode"
+msgstr ""
+
+msgid "Shortcode (embed)"
+msgstr ""
+
+msgid "Template tag (PHP)"
+msgstr ""
+
+msgid "Render endpoint URL"
+msgstr ""
+
+msgid "Copy"
+msgstr ""
+
+msgid "Copied!"
+msgstr ""
+
+msgid "Plugin version"
+msgstr ""
+
+msgid "Active format"
+msgstr ""
+
+msgid "Active articles"
+msgstr ""
+
+msgid "Current week"
+msgstr ""
+
+msgid "Last sync"
+msgstr ""
+
+msgid "Sync endpoint (POST)"
+msgstr ""
+
+msgid "Status endpoint (GET)"
+msgstr ""
+
+msgid "Render endpoint (GET)"
+msgstr ""
+
+msgid "Send test to /status"
+msgstr ""
+
+msgid "Purge cache now"
+msgstr ""
+
+msgid "Preview each format"
+msgstr ""
+
+msgid "Render all formats"
+msgstr ""
+
+msgid "Title:"
+msgstr ""
+
+msgid "How many (1-9):"
+msgstr ""
+
+msgid "Broken image behavior:"
+msgstr ""
+
+msgid "Vertical filter:"
+msgstr ""
+
+msgid "Previous"
+msgstr ""
+
+msgid "Next"
+msgstr ""

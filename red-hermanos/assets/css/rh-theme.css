@@ -1,0 +1,118 @@
+/**
+ * Red Hermanos — shared design tokens + theme adaptation.
+ *
+ * Philosophy: blend into the active theme (YITH Proteo child), never impose our
+ * own identity. Typography is inherited; colors come from a cascade:
+ *   1) admin accent setting (injected inline)  2) Proteo CSS variables  3) neutral fallback.
+ *
+ * Verify the real Proteo custom-property names in the Customizer <style> block;
+ * because var(--x, fallback) degrades on its own, the plugin looks fine even if
+ * a variable name differs or is absent.
+ */
+
+.rh-related-posts {
+	/* Accent cascade: inline setting -> Proteo main color -> neutral. */
+	--rh-accent:  var(--proteo-main-color, #2b2b2b);
+	--rh-text:    var(--proteo-text-color, inherit);
+	--rh-heading: var(--proteo-headings-color, inherit);
+	--rh-border:  rgba(0, 0, 0, 0.10);
+	--rh-surface: #ffffff;
+	--rh-muted:   rgba(0, 0, 0, 0.55);
+	--rh-radius:  6px;
+	--rh-gap:     1.25rem;
+
+	/* Inherit typography from the theme. */
+	font-family: inherit;
+	line-height: inherit;
+	color: var(--rh-text);
+
+	/* Respect the theme container: vertical rhythm + subtle separator. */
+	margin: 2rem 0;
+	padding-top: 1.5rem;
+	border-top: 1px solid var(--rh-border);
+	box-sizing: border-box;
+}
+
+.rh-related-posts *,
+.rh-related-posts *::before,
+.rh-related-posts *::after {
+	box-sizing: border-box;
+}
+
+.rh-related-posts__heading {
+	font-family: inherit;
+	color: var(--rh-heading);
+	margin: 0 0 var(--rh-gap);
+	font-size: 1.25rem;
+	line-height: 1.2;
+}
+
+/* Card link — inherit typography, no default underline. */
+.rh-card__link {
+	text-decoration: none;
+	color: inherit;
+	display: block;
+	height: 100%;
+}
+
+.rh-card__topic {
+	display: block;
+	font-size: 0.72rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--rh-accent);
+	margin-bottom: 0.35rem;
+}
+
+.rh-card__title {
+	display: block;
+	font-family: inherit;
+	color: var(--rh-heading);
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.rh-card__excerpt {
+	display: block;
+	color: var(--rh-text);
+	font-size: 0.9rem;
+	margin-top: 0.4rem;
+}
+
+.rh-card__site {
+	display: block;
+	color: var(--rh-muted);
+	font-size: 0.78rem;
+	margin-top: 0.5rem;
+}
+
+/* Text-only mode (rh-images.js hid the image, or show_thumbnails is off). */
+.rh-card--noimg .rh-card__thumb {
+	display: none;
+}
+
+/* -------------------------------------------------------------------------
+ * Per-zone contextual tweaks.
+ * ---------------------------------------------------------------------------
+ */
+.rh-zone {
+	width: 100%;
+}
+
+.rh-zone--header .rh-related-posts,
+.rh-zone--footer .rh-related-posts {
+	max-width: var(--wp--style--global--content-size, 1140px);
+	margin-left: auto;
+	margin-right: auto;
+	text-align: left;
+}
+
+.rh-zone--footer .rh-related-posts {
+	font-size: 0.9em;
+}
+
+/* Sidebar variant: force a single column even for cards_grid. */
+.rh--sidebar-wrap .rh-cards-grid,
+.rh-related-posts.rh--sidebar .rh-cards-grid {
+	grid-template-columns: 1fr;
+}

@@ -1,0 +1,112 @@
+/**
+ * Red Hermanos — admin GUI styles.
+ */
+
+.rh-admin .rh-tagline {
+	max-width: 60ch;
+	color: #555;
+}
+
+.rh-admin .dashicons-networking {
+	color: #2271b1;
+	vertical-align: text-bottom;
+}
+
+.rh-admin .rh-section-images {
+	margin-top: 2rem;
+	padding-top: 0.5rem;
+	border-top: 2px solid #dcdcde;
+}
+
+/* Placement cards. */
+.rh-cards {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1.25rem;
+	margin: 1rem 0 1.5rem;
+}
+
+.rh-card-zone {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 1rem 1.25rem;
+}
+
+.rh-card-zone h3 {
+	margin-top: 0;
+}
+
+.rh-card-zone select,
+.rh-card-zone input[type="text"] {
+	max-width: 100%;
+}
+
+/* Preview boxes. */
+.rh-preview-box {
+	margin-top: 0.75rem;
+	padding: 1rem;
+	border: 1px dashed #c3c4c7;
+	border-radius: 6px;
+	background: #fafafa;
+	min-height: 2rem;
+}
+
+.rh-preview-box:empty::before {
+	content: "";
+}
+
+/* Snippets table. */
+.rh-snippets td code {
+	display: inline-block;
+	max-width: 60ch;
+	overflow-x: auto;
+	white-space: nowrap;
+	vertical-align: middle;
+}
+
+.rh-copy-btn.rh-copied {
+	color: #007017;
+	border-color: #007017;
+}
+
+/* Status output. */
+.rh-status-out {
+	background: #1d2327;
+	color: #c3f0c8;
+	padding: 1rem;
+	border-radius: 6px;
+	overflow-x: auto;
+	min-height: 1rem;
+	white-space: pre-wrap;
+}
+
+.rh-status-out:empty {
+	display: none;
+}
+
+/* Format gallery (Tools). */
+.rh-format-gallery {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1.25rem;
+}
+
+.rh-format-tile {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 1rem;
+}
+
+.rh-format-tile h3 {
+	margin-top: 0;
+	text-transform: capitalize;
+}
+
+@media (max-width: 782px) {
+	.rh-cards,
+	.rh-format-gallery {
+		grid-template-columns: 1fr;
+	}
+}
