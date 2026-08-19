@@ -1,5 +1,7 @@
-# Build artifacts
+# Build artifacts — ignore all zips EXCEPT the published root package,
+# which we version so it can be downloaded directly from the repo.
 *.zip
+!/red-hermanos.zip
 
 # OS junk
 .DS_Store
