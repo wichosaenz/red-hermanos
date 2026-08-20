@@ -3,7 +3,7 @@
  * Plugin Name:       Red Hermanos — Cross-Site Related Posts
  * Plugin URI:        https://github.com/wichosaenz/red-hermanos
  * Description:        Muestra artículos relacionados de los sitios hermanos de la red, alimentado semanalmente por n8n vía REST API.
- * Version:           1.2.0
+ * Version:           1.2.1
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Everest Ecosystem
@@ -37,7 +37,7 @@ defined( 'ABSPATH' ) || exit;
  * Constants
  * ---------------------------------------------------------------------------
  */
-define( 'RH_VERSION', '1.2.0' );
+define( 'RH_VERSION', '1.2.1' );
 define( 'RH_PLUGIN_FILE', __FILE__ );
 define( 'RH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'RH_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -55,7 +55,6 @@ require_once RH_PLUGIN_DIR . 'includes/class-rh-placements.php';
 require_once RH_PLUGIN_DIR . 'includes/class-rh-widget.php';
 require_once RH_PLUGIN_DIR . 'includes/class-rh-admin.php';
 require_once RH_PLUGIN_DIR . 'includes/class-rh-shortcodes.php';
-require_once RH_PLUGIN_DIR . 'includes/class-rh-jsonld.php';
 
 /* -------------------------------------------------------------------------
  * GitHub auto-updates.
@@ -127,7 +126,6 @@ add_action(
 		RH_Renderer::init();
 		RH_Placements::init();
 		RH_Shortcodes::init();
-		RH_JsonLd::init();
 
 		// Admin GUI only in wp-admin.
 		if ( is_admin() ) {

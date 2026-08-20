@@ -123,26 +123,77 @@ class RH_Renderer {
 	}
 
 	/**
-	 * Whether a template loop should skip this article for lacking a usable
-	 * image. Safety net for early-workflow posts indexed without a featured
-	 * image. When thumbnails are shown and there is neither a real thumbnail nor
-	 * a configured fallback, the card would be imageless — skip it. In text-only
-	 * mode (show_thumbnails off) nothing is skipped; that layout is intentional.
+	 * Select the rows a template should render, up to $args['count'].
 	 *
-	 * @param object $article Row object.
-	 * @param array  $args    Parsed args.
-	 * @return bool
+	 * Behaviour (v1.2.0):
+	 *   - Rows whose image resolution is 'skip' (broken_image_mode = hide_card
+	 *     with no image and no fallback) are dropped — that is an explicit
+	 *     opt-in to hide imageless cards.
+	 *   - Cards WITH an image are preferred: if there are at least `count` of
+	 *     them, only those are shown (a clean all-image grid).
+	 *   - Otherwise every remaining row (image + text) is shown in order up to
+	 *     `count`, so the widget is NEVER empty just because articles lack a
+	 *     featured image. Imageless cards render as tidy text-only cards.
+	 *
+	 * @param array $articles Query rows (over-fetched).
+	 * @param array $args     Parsed args.
+	 * @return array
 	 */
-	public static function skip_no_image( $article, array $args ) {
-		if ( empty( $args['show_thumbnails'] ) ) {
-			return false;
+	public static function select_articles( array $articles, array $args ) {
+		$count      = max( 1, (int) $args['count'] );
+		$with_image = array();
+		$all        = array();
+
+		foreach ( $articles as $article ) {
+			$thumb = self::resolve_thumb( $article, $args );
+			if ( 'skip' === $thumb['mode'] ) {
+				continue; // Explicit hide_card with no image/fallback.
+			}
+			$all[] = $article;
+			if ( 'image' === $thumb['mode'] ) {
+				$with_image[] = $article;
+			}
 		}
-		$thumb = isset( $article->thumbnail_url ) ? trim( (string) $article->thumbnail_url ) : '';
-		if ( '' !== $thumb ) {
-			return false;
+
+		if ( count( $with_image ) >= $count ) {
+			return array_slice( $with_image, 0, $count );
 		}
-		// No thumbnail: keep it only if a fallback image is configured.
-		return '' === $args['fallback_image'];
+
+		return array_slice( $all, 0, $count );
+	}
+
+	/**
+	 * Neutralize junk excerpt values. n8n's ?_embed pulls can leak WordPress
+	 * image-size names ("full", "thumbnail", "medium"…) into the excerpt field.
+	 * This runs BOTH on input (REST) and on output (templates) so legacy rows
+	 * already stored with junk never render the stray word under a title.
+	 *
+	 * @param string $raw Raw excerpt.
+	 * @return string Clean excerpt, or '' if it is junk / too short.
+	 */
+	public static function clean_excerpt( $raw ) {
+		$excerpt = is_string( $raw ) ? trim( $raw ) : '';
+		if ( '' === $excerpt ) {
+			return '';
+		}
+		if ( in_array( strtolower( $excerpt ), self::junk_strings(), true ) ) {
+			return '';
+		}
+		// A real excerpt is longer than a size-name token.
+		if ( strlen( $excerpt ) <= 10 ) {
+			return '';
+		}
+		return $excerpt;
+	}
+
+	/**
+	 * Known junk tokens (WordPress image-size names) that must never render as
+	 * text. Shared by REST sanitization and template output.
+	 *
+	 * @return string[]
+	 */
+	public static function junk_strings() {
+		return array( 'full', 'thumbnail', 'medium', 'medium_large', 'medium-large', 'large', 'post-thumbnail', '1536x1536', '2048x2048' );
 	}
 
 	/**
@@ -234,6 +285,16 @@ class RH_Renderer {
 		$articles = self::query( $args );
 
 		// Never render an empty section.
+		if ( empty( $articles ) ) {
+			return '';
+		}
+
+		// Choose which rows to show. Prefer cards that have an image, but NEVER
+		// return nothing when there is data: if there aren't enough image cards
+		// to fill the count, fall back to showing text cards too. (v1.2.0 fix:
+		// the old per-template "skip no-image" logic could empty the whole
+		// widget when every active article lacked a thumbnail.)
+		$articles = self::select_articles( $articles, $args );
 		if ( empty( $articles ) ) {
 			return '';
 		}
