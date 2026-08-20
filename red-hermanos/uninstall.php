@@ -21,6 +21,7 @@ function rh_uninstall_cleanup() {
 	delete_option( 'rh_globals' );
 	delete_option( 'rh_placements' );
 	delete_option( 'rh_db_version' );
+	delete_option( 'rh_github_token' );
 }
 
 if ( is_multisite() ) {

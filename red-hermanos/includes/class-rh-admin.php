@@ -67,6 +67,29 @@ class RH_Admin {
 				'sanitize_callback' => array( 'RH_Settings', 'sanitize_placements' ),
 			)
 		);
+
+		// GitHub Personal Access Token for auto-updates from a private repo.
+		register_setting(
+			'rh_settings_token',
+			'rh_github_token',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_token' ),
+				'default'           => '',
+			)
+		);
+	}
+
+	/**
+	 * Sanitize the GitHub token (tokens are ASCII, no whitespace).
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function sanitize_token( $value ) {
+		$value = is_string( $value ) ? trim( $value ) : '';
+		// Keep only characters valid in a GitHub PAT.
+		return preg_replace( '/[^A-Za-z0-9_]/', '', $value );
 	}
 
 	/**
@@ -160,7 +183,9 @@ class RH_Admin {
 		);
 		?>
 		<div class="wrap rh-admin">
-			<h1><span class="dashicons dashicons-networking"></span> <?php esc_html_e( 'Red Hermanos', 'red-hermanos' ); ?></h1>
+			<h1><span class="dashicons dashicons-networking"></span> <?php esc_html_e( 'Red Hermanos', 'red-hermanos' ); ?>
+				<span class="rh-version">v<?php echo esc_html( RH_VERSION ); ?></span>
+			</h1>
 			<p class="rh-tagline"><?php esc_html_e( 'Cross-site related posts. Data is delivered weekly by n8n via REST API; this plugin stores and displays it.', 'red-hermanos' ); ?></p>
 
 			<h2 class="nav-tab-wrapper">
@@ -296,6 +321,25 @@ class RH_Admin {
 				data-target="#rh-preview-general"><?php esc_html_e( 'Preview', 'red-hermanos' ); ?></button>
 		</p>
 		<div id="rh-preview-general" class="rh-preview-box"></div>
+
+		<?php // Separate form: GitHub auto-update token. ?>
+		<form method="post" action="options.php">
+			<?php settings_fields( 'rh_settings_token' ); ?>
+			<h2><?php esc_html_e( 'Updates', 'red-hermanos' ); ?></h2>
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><?php esc_html_e( 'GitHub Access Token (for auto-updates)', 'red-hermanos' ); ?></th>
+					<td>
+						<input type="password" class="regular-text" autocomplete="off"
+							name="rh_github_token"
+							value="<?php echo esc_attr( get_option( 'rh_github_token', '' ) ); ?>" />
+						<p class="description"><?php esc_html_e( 'Required only if the plugin repository is private. Create a Personal Access Token at GitHub with \'repo\' scope.', 'red-hermanos' ); ?></p>
+						<p class="description"><?php printf( esc_html__( 'Current plugin version: %s', 'red-hermanos' ), '<code>' . esc_html( RH_VERSION ) . '</code>' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+					</td>
+				</tr>
+			</table>
+			<?php submit_button( __( 'Save token', 'red-hermanos' ) ); ?>
+		</form>
 		<?php
 	}
 

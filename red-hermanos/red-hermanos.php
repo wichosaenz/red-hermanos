@@ -3,7 +3,7 @@
  * Plugin Name:       Red Hermanos — Cross-Site Related Posts
  * Plugin URI:        https://github.com/wichosaenz/red-hermanos
  * Description:        Muestra artículos relacionados de los sitios hermanos de la red, alimentado semanalmente por n8n vía REST API.
- * Version:           1.0.0
+ * Version:           1.2.0
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Everest Ecosystem
@@ -37,7 +37,7 @@ defined( 'ABSPATH' ) || exit;
  * Constants
  * ---------------------------------------------------------------------------
  */
-define( 'RH_VERSION', '1.0.0' );
+define( 'RH_VERSION', '1.2.0' );
 define( 'RH_PLUGIN_FILE', __FILE__ );
 define( 'RH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'RH_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -55,6 +55,48 @@ require_once RH_PLUGIN_DIR . 'includes/class-rh-placements.php';
 require_once RH_PLUGIN_DIR . 'includes/class-rh-widget.php';
 require_once RH_PLUGIN_DIR . 'includes/class-rh-admin.php';
 require_once RH_PLUGIN_DIR . 'includes/class-rh-shortcodes.php';
+require_once RH_PLUGIN_DIR . 'includes/class-rh-jsonld.php';
+
+/* -------------------------------------------------------------------------
+ * GitHub auto-updates.
+ *
+ * Uses YahnisElsts/plugin-update-checker (MIT license, v5.7). Checks GitHub
+ * releases for new versions and surfaces the native WordPress "update now"
+ * notification. No Composer — the library is vendored in-tree. For a private
+ * repository, a Personal Access Token (repo scope) saved in the admin panel is
+ * applied below.
+ * ---------------------------------------------------------------------------
+ */
+require_once RH_PLUGIN_DIR . 'vendor/plugin-update-checker/plugin-update-checker.php';
+
+add_action(
+	'init',
+	function () {
+		if ( ! class_exists( '\\YahnisElsts\\PluginUpdateChecker\\v5\\PucFactory' ) ) {
+			return;
+		}
+
+		$update_checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+			'https://github.com/wichosaenz/red-hermanos/',
+			RH_PLUGIN_FILE,
+			'red-hermanos'
+		);
+
+		// Use GitHub releases (not tags/branches) for version detection. The
+		// release tag should match the version (e.g. "v1.2.0").
+		$vcs_api = $update_checker->getVcsApi();
+		if ( $vcs_api && method_exists( $vcs_api, 'enableReleaseAssets' ) ) {
+			$vcs_api->enableReleaseAssets();
+		}
+
+		// Private repository: apply the token saved in the admin panel, if any.
+		$token = get_option( 'rh_github_token', '' );
+		if ( ! empty( $token ) ) {
+			$update_checker->setAuthentication( $token );
+		}
+	},
+	1
+);
 
 /* -------------------------------------------------------------------------
  * Activation — create table + seed options.
@@ -76,11 +118,16 @@ add_action(
 			dirname( plugin_basename( __FILE__ ) ) . '/languages'
 		);
 
+		// Run pending schema migrations for sites upgraded in place (WordPress
+		// does not fire the activation hook on plugin updates).
+		RH_Activator::maybe_migrate();
+
 		// Core runtime pieces (front + REST).
 		RH_Rest_API::init();
 		RH_Renderer::init();
 		RH_Placements::init();
 		RH_Shortcodes::init();
+		RH_JsonLd::init();
 
 		// Admin GUI only in wp-admin.
 		if ( is_admin() ) {

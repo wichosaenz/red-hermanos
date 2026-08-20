@@ -21,6 +21,28 @@ class RH_Activator {
 	public static function activate() {
 		self::create_table();
 		self::seed_options();
+		self::maybe_migrate();
+	}
+
+	/**
+	 * Boot-time migration hook. Runs on every load (cheap: one option read) so
+	 * the 20 sites already on v1.1 get schema changes without re-activating.
+	 *
+	 * @return void
+	 */
+	public static function maybe_migrate() {
+		if ( get_option( RH_Settings::OPT_DB_VERSION ) === RH_VERSION ) {
+			return;
+		}
+
+		global $wpdb;
+		$table = self::table_name();
+
+		// v1.2.0: add site_icon_url. IF NOT EXISTS keeps this idempotent and
+		// safe if create_table (dbDelta) already added it on a fresh install.
+		$wpdb->query( "ALTER TABLE {$table} ADD COLUMN IF NOT EXISTS site_icon_url VARCHAR(500) DEFAULT NULL AFTER thumbnail_url" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange
+
+		update_option( RH_Settings::OPT_DB_VERSION, RH_VERSION );
 	}
 
 	/**
@@ -58,6 +80,7 @@ class RH_Activator {
   vertical VARCHAR(50) DEFAULT NULL,
   researcher VARCHAR(100) DEFAULT NULL,
   thumbnail_url VARCHAR(500) DEFAULT NULL,
+  site_icon_url VARCHAR(500) DEFAULT NULL,
   similarity_score FLOAT DEFAULT 0,
   topic_tag VARCHAR(255) DEFAULT NULL,
   semana_iso VARCHAR(10) NOT NULL,

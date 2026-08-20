@@ -6,10 +6,11 @@ recomendados (que le envía el flujo de n8n `WF4 — Red Hermanos Distributor`),
 **almacena** en su propia tabla y los **muestra** en el frontend con un bloque
 que se adapta al tema activo.
 
-No consulta Pinecone, no genera recomendaciones y **no imprime ningún JSON-LD /
-schema** — de eso se encarga el orquestador externo. Es únicamente la capa de
-recepción + display, equivalente funcional a *Jetpack Related Posts* pero entre
-sitios afiliados del mismo grupo.
+No consulta Pinecone ni genera recomendaciones — de eso se encarga el orquestador
+externo. Es únicamente la capa de recepción + display, equivalente funcional a
+*Jetpack Related Posts* pero entre sitios afiliados del mismo grupo. Desde la
+v1.2 emite además su **propio bloque JSON-LD separado** (`ItemList` +
+`WebPage.relatedLink`) y ofrece **auto-actualizaciones desde GitHub**.
 
 - **PHP:** 7.4 – 8.3
 - **WordPress:** 5.8+ (probado en 6.x y 7.x)
@@ -125,7 +126,9 @@ aplica el modo (*usar reserva* / *ocultar imagen* / *ocultar card*), de forma qu
 ## Compatibilidad
 
 - Editor clásico (sin depender de Gutenberg).
-- No emite JSON-LD/schema propio.
+- Emite su propio JSON-LD (`ItemList` + `WebPage.relatedLink`) en `wp_footer`,
+  solo en entradas, separado del structured data externo (v1.2+).
+- Enlaces dofollow (sin `target="_blank"` ni `rel`); auto-updates desde GitHub.
 - Purga caché de Breeze tras cada sync (si existe).
 - Carga solo `rh-theme.css` + el CSS/JS del formato en uso.
 
