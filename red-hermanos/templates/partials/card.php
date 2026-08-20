@@ -32,9 +32,14 @@ if ( 'skip' === $rh_thumb['mode'] ) {
 
 $rh_title    = isset( $article->post_title ) ? $article->post_title : '';
 $rh_url      = isset( $article->post_url ) ? $article->post_url : '';
-$rh_excerpt  = isset( $article->post_excerpt ) ? $article->post_excerpt : '';
+// Render-time junk filter: neutralizes stray image-size words ("full", …) even
+// for rows that were stored before the input-side fix existed.
+$rh_excerpt  = RH_Renderer::clean_excerpt( isset( $article->post_excerpt ) ? $article->post_excerpt : '' );
 $rh_site     = isset( $article->site_name ) ? $article->site_name : '';
-$rh_topic    = isset( $article->topic_tag ) ? $article->topic_tag : '';
+$rh_topic    = isset( $article->topic_tag ) ? trim( (string) $article->topic_tag ) : '';
+if ( '' !== $rh_topic && in_array( strtolower( $rh_topic ), RH_Renderer::junk_strings(), true ) ) {
+	$rh_topic = '';
+}
 $rh_favicon  = isset( $article->site_icon_url ) ? $article->site_icon_url : '';
 
 $rh_card_class = 'rh-card';
@@ -81,8 +86,8 @@ if ( 'image' !== $rh_thumb['mode'] ) {
 			</div>
 		<?php endif; ?>
 
-		<?php // CAMBIO 1: only show a real excerpt (guards against junk). ?>
-		<?php if ( ! empty( $rh_excerpt ) && strlen( $rh_excerpt ) > 10 ) : ?>
+		<?php // CAMBIO 1: excerpt already cleaned (junk/short removed) above. ?>
+		<?php if ( '' !== $rh_excerpt ) : ?>
 			<p class="rh-card-excerpt"><?php echo esc_html( $rh_excerpt ); ?></p>
 		<?php endif; ?>
 	</div>

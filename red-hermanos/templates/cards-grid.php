@@ -17,16 +17,8 @@ echo RH_Renderer::container_open( $args, 'cards_grid' ); // phpcs:ignore WordPre
 	<?php endif; ?>
 	<div class="rh-cards-grid">
 		<?php
-		$rendered = 0;
+		// $articles is already selected/limited by RH_Renderer::select_articles().
 		foreach ( $articles as $article ) {
-			// CAMBIO 1B: skip articles without a usable image (safety net).
-			if ( RH_Renderer::skip_no_image( $article, $args ) ) {
-				continue;
-			}
-			if ( $rendered >= (int) $args['count'] ) {
-				break;
-			}
-			++$rendered;
 			include RH_PLUGIN_DIR . 'templates/partials/card.php';
 		}
 		?>

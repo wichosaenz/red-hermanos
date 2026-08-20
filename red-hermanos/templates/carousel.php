@@ -20,15 +20,7 @@ echo RH_Renderer::container_open( $args, 'carousel' ); // phpcs:ignore WordPress
 		<div class="rh-carousel__viewport">
 			<div class="rh-carousel__track">
 				<?php
-				$rendered = 0;
 				foreach ( $articles as $article ) {
-					if ( RH_Renderer::skip_no_image( $article, $args ) ) {
-						continue;
-					}
-					if ( $rendered >= (int) $args['count'] ) {
-						break;
-					}
-					++$rendered;
 					echo '<div class="rh-carousel__slide">';
 					include RH_PLUGIN_DIR . 'templates/partials/card.php';
 					echo '</div>';

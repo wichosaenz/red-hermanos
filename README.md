@@ -10,10 +10,9 @@ al tema activo.
 > No consulta Pinecone ni genera recomendaciones — de eso se encarga el
 > orquestador externo. Es únicamente la capa de *recepción + display*,
 > equivalente funcional a *Jetpack Related Posts* pero entre sitios afiliados del
-> mismo grupo. Desde la v1.2 el plugin **sí emite su propio bloque JSON-LD
-> separado** (`ItemList` + `WebPage.relatedLink`) que declara los artículos
-> hermanos como contenido relacionado, sin tocar el structured data que inyecta
-> el orquestador.
+> mismo grupo. El plugin **no imprime ningún JSON-LD / schema propio**: cada
+> entrada y la portada ya traen sus propios metadatos, así que el widget no toca
+> ni duplica el structured data del contenido original.
 
 - **PHP:** 7.4 – 8.3
 - **WordPress:** 5.8+ (probado en 6.x y 7.x)
@@ -204,8 +203,8 @@ dato venga mal.
 ## Notas de compatibilidad
 
 - Funciona con el **editor clásico** (no depende de Gutenberg ni `block.json`).
-- **Emite su propio JSON-LD** en `wp_footer` (prioridad 5), solo en entradas
-  individuales, como bloque separado del structured data externo (v1.2+).
+- **No emite JSON-LD / schema propio** — el contenido original (entradas y
+  portada) ya trae sus metadatos; el widget no los toca ni los duplica.
 - **Enlaces dofollow**: sin `target="_blank"` y sin `rel` (backlinks editoriales).
 - **Auto-actualizaciones desde GitHub** (Plugin Update Checker vendorizado).
 - Purga el caché de **Breeze** tras cada sincronización, si está presente.

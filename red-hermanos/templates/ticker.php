@@ -20,17 +20,7 @@ echo RH_Renderer::container_open( $args, 'ticker' ); // phpcs:ignore WordPress.S
 			<span class="rh-ticker__label"><?php echo esc_html( $heading ); ?></span>
 		<?php endif; ?>
 		<div class="rh-ticker__track">
-			<?php
-			$rendered = 0;
-			foreach ( $articles as $article ) :
-				if ( RH_Renderer::skip_no_image( $article, $args ) ) {
-					continue;
-				}
-				if ( $rendered >= (int) $args['count'] ) {
-					break;
-				}
-				++$rendered;
-				?>
+			<?php foreach ( $articles as $article ) : ?>
 				<span class="rh-ticker__item">
 					<?php if ( ! empty( $article->site_name ) ) : ?>
 						<span class="rh-ticker__site"><?php echo esc_html( $article->site_name ); ?></span>

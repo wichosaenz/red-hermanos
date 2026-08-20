@@ -20,17 +20,7 @@ echo RH_Renderer::container_open( $args, 'marquee' ); // phpcs:ignore WordPress.
 	<?php endif; ?>
 	<div class="rh-marquee" data-rh-marquee>
 		<ul class="rh-marquee__list">
-			<?php
-			$rendered = 0;
-			foreach ( $articles as $article ) :
-				if ( RH_Renderer::skip_no_image( $article, $args ) ) {
-					continue;
-				}
-				if ( $rendered >= (int) $args['count'] ) {
-					break;
-				}
-				++$rendered;
-				?>
+			<?php foreach ( $articles as $article ) : ?>
 				<li class="rh-marquee__item">
 					<a class="rh-marquee__title" href="<?php echo esc_url( $article->post_url ); ?>"><?php echo esc_html( $article->post_title ); ?></a>
 					<?php if ( ! empty( $article->site_name ) ) : ?>

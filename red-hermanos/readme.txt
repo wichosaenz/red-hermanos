@@ -4,25 +4,26 @@ Tags: related posts, cross-site, backlinks, SEO, structured data
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Displays related articles from 19 sibling sites in a WordPress editorial network. Generates dofollow backlinks and enriches JSON-LD structured data for SEO and GEO optimization.
+Displays related articles from 19 sibling sites in a WordPress editorial network with dofollow editorial backlinks.
 
 == Description ==
 
-Red Hermanos is the display layer of a cross-site content distribution system. It receives weekly recommendations from an n8n workflow (powered by Pinecone vector search) and renders them as related article widgets with full SEO backlink value.
+Red Hermanos is the display layer of a cross-site content distribution system. It receives weekly recommendations from an n8n workflow (powered by Pinecone vector search) and renders them as related article widgets.
 
 Features:
 
 * Cross-site article recommendations from 19 sibling sites
 * Dofollow editorial backlinks for Domain Authority growth
-* JSON-LD structured data (ItemList + WebPage.relatedLink)
+* Site name + favicon shown under each article title
 * 5 display formats: cards grid, ticker, carousel, marquee, in-post
 * Weekly rotation aligned with Mon-Fri publishing cycle
 * REST API endpoint for n8n orchestration
 * WordPress native auto-updates from GitHub
+* Emits no JSON-LD of its own — the source content already carries its metadata
 
 == Installation ==
 
@@ -33,19 +34,18 @@ Features:
 
 == Changelog ==
 
+= 1.2.1 =
+* Fixed (critical): widgets rendered empty when active articles had no featured image; the renderer now prefers image cards but never returns an empty widget (falls back to text-only cards)
+* Fixed: sync no longer discards valid extension-less / CDN thumbnail URLs
+* Fixed: "full" and other image-size tokens filtered on both input and output
+* Fixed: cross-DB safe migration for the site_icon_url column
+* Removed: JSON-LD output (source content already carries its own metadata)
+
 = 1.2.0 =
-* Fixed: "full" text appearing in cards (WordPress image size leaking)
 * Added: Site name with favicon displayed below article title
 * Added: GitHub-based auto-updates via Plugin Update Checker
-* Added: Filter that skips sibling articles without a featured image
-* Improved: Excerpt validation (filters invalid image-size strings)
-* Security: Repository moved to private
-
-= 1.1.0 =
-* Added: JSON-LD injection (ItemList + WebPage.relatedLink)
-* Fixed: Links now dofollow without target="_blank" or rel="noopener"
-* Improved: Semantic HTML structure (nav > article > h4 > a)
-* Added: Card click handler via JavaScript (SEO-safe)
+* Fixed: "full" text appearing in cards (WordPress image size leaking)
+* Changed: dofollow links (no target="_blank" / rel); semantic nav > article > h4 > a; JS card click
 
 = 1.0.0 =
 * Initial release
@@ -55,5 +55,5 @@ Features:
 
 == Upgrade Notice ==
 
-= 1.2.0 =
-Bug fixes and auto-update support. Update recommended for all sites.
+= 1.2.1 =
+Critical fix: restores related-article rendering when articles lack featured images. Update strongly recommended.

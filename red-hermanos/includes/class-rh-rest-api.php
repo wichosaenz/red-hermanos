@@ -121,6 +121,11 @@ class RH_Rest_API {
 		$fecha_sync = current_time( 'mysql' );
 		$inserted   = 0;
 
+		// Resilience: only write site_icon_url if the column exists (it may not
+		// on a site whose migration has not completed). Without this guard a
+		// missing column would fail EVERY insert and leave the widget empty.
+		$has_icon_col = RH_Activator::has_site_icon_column();
+
 		foreach ( $articulos as $index => $art ) {
 			if ( ! is_array( $art ) ) {
 				continue;
@@ -136,19 +141,20 @@ class RH_Rest_API {
 
 			// Excerpt: filter known junk values. When n8n pulls posts from the
 			// WP REST API with ?_embed, image-size names ("full", "thumbnail",
-			// "medium"…) can leak into the excerpt field. Discard those so the
-			// literal word "full" never renders under a card title.
-			$excerpt          = isset( $art['post_excerpt'] ) ? sanitize_textarea_field( $art['post_excerpt'] ) : '';
-			$invalid_excerpts = array( 'full', 'thumbnail', 'medium', 'large', 'medium_large', 'post-thumbnail' );
-			if ( in_array( strtolower( trim( $excerpt ) ), $invalid_excerpts, true ) ) {
-				$excerpt = '';
-			}
+			// "medium"…) can leak into the excerpt field. clean_excerpt() also
+			// drops values <= 10 chars, so the literal word "full" never renders
+			// under a card title. (Same helper runs again at render time.)
+			$excerpt = RH_Renderer::clean_excerpt(
+				isset( $art['post_excerpt'] ) ? sanitize_textarea_field( $art['post_excerpt'] ) : ''
+			);
 
-			// Thumbnail: must look like a real image URL, otherwise discard so a
-			// junk string can never become a broken <img>.
+			// Thumbnail: keep any real absolute http(s) URL. We deliberately do
+			// NOT require a file extension — modern WordPress/CDN thumbnail URLs
+			// are often extension-less or carry query strings, and an over-strict
+			// check here previously wiped valid images and emptied the widget.
 			$thumb = isset( $art['thumbnail_url'] ) && '' !== $art['thumbnail_url'] ? esc_url_raw( $art['thumbnail_url'] ) : '';
-			if ( '' !== $thumb && ! preg_match( '/\.(jpg|jpeg|png|webp|gif)/i', $thumb ) ) {
-				$thumb = '';
+			if ( '' !== $thumb && ! preg_match( '#^https?://#i', $thumb ) ) {
+				$thumb = ''; // Not an absolute URL (e.g. a stray "full") — discard.
 			}
 
 			$data = array(
@@ -170,10 +176,14 @@ class RH_Rest_API {
 				'activo'           => 1,
 			);
 
-			$formats = array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%f', '%s', '%s', '%s', '%s', '%d', '%d' );
+			// Drop the icon field when the column is absent (see above).
+			if ( ! $has_icon_col ) {
+				unset( $data['site_icon_url'] );
+			}
 
-			// $wpdb->insert escapes via the format array.
-			$ok = $wpdb->insert( $table, $data, $formats ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			// Let $wpdb->insert infer formats (all %s; MySQL coerces numeric
+			// columns). This keeps insertion robust even when a key is omitted.
+			$ok = $wpdb->insert( $table, $data ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 
 			if ( false !== $ok ) {
 				++$inserted;
