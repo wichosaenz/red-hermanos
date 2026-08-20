@@ -7,10 +7,13 @@ artículos hermanos recomendados (que le envía un flujo de n8n), los **almacena
 en su propia tabla y los **muestra** en el frontend con un bloque que se adapta
 al tema activo.
 
-> No consulta Pinecone, no genera recomendaciones y **no imprime ningún JSON-LD /
-> schema** — de eso se encarga el orquestador externo. Este plugin es únicamente
-> la capa de *recepción + display*, equivalente funcional a *Jetpack Related
-> Posts* pero entre sitios afiliados del mismo grupo.
+> No consulta Pinecone ni genera recomendaciones — de eso se encarga el
+> orquestador externo. Es únicamente la capa de *recepción + display*,
+> equivalente funcional a *Jetpack Related Posts* pero entre sitios afiliados del
+> mismo grupo. Desde la v1.2 el plugin **sí emite su propio bloque JSON-LD
+> separado** (`ItemList` + `WebPage.relatedLink`) que declara los artículos
+> hermanos como contenido relacionado, sin tocar el structured data que inyecta
+> el orquestador.
 
 - **PHP:** 7.4 – 8.3
 - **WordPress:** 5.8+ (probado en 6.x y 7.x)
@@ -201,8 +204,10 @@ dato venga mal.
 ## Notas de compatibilidad
 
 - Funciona con el **editor clásico** (no depende de Gutenberg ni `block.json`).
-- **No emite JSON-LD / schema** (evita duplicar los datos estructurados que
-  inyecta el orquestador externo).
+- **Emite su propio JSON-LD** en `wp_footer` (prioridad 5), solo en entradas
+  individuales, como bloque separado del structured data externo (v1.2+).
+- **Enlaces dofollow**: sin `target="_blank"` y sin `rel` (backlinks editoriales).
+- **Auto-actualizaciones desde GitHub** (Plugin Update Checker vendorizado).
 - Purga el caché de **Breeze** tras cada sincronización, si está presente.
 - Carga **solo** `rh-theme.css` + el CSS/JS del formato realmente en uso.
 

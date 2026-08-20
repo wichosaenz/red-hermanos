@@ -100,21 +100,49 @@ class RH_Renderer {
 		global $wpdb;
 		$table = self::table();
 
+		// Over-fetch: templates skip articles that have no valid thumbnail
+		// (CAMBIO 1B safety net), so pull extra rows to still fill `count`
+		// cards. Capped so the query stays bounded.
+		$query_count = min( (int) $args['count'] * 2, 18 );
+
 		if ( '' !== $args['vertical_filter'] ) {
 			$sql = $wpdb->prepare(
 				"SELECT * FROM {$table} WHERE activo = 1 AND vertical = %s ORDER BY posicion ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$args['vertical_filter'],
-				$args['count']
+				$query_count
 			);
 		} else {
 			$sql = $wpdb->prepare(
 				"SELECT * FROM {$table} WHERE activo = 1 ORDER BY posicion ASC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$args['count']
+				$query_count
 			);
 		}
 
 		$rows = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 		return is_array( $rows ) ? $rows : array();
+	}
+
+	/**
+	 * Whether a template loop should skip this article for lacking a usable
+	 * image. Safety net for early-workflow posts indexed without a featured
+	 * image. When thumbnails are shown and there is neither a real thumbnail nor
+	 * a configured fallback, the card would be imageless — skip it. In text-only
+	 * mode (show_thumbnails off) nothing is skipped; that layout is intentional.
+	 *
+	 * @param object $article Row object.
+	 * @param array  $args    Parsed args.
+	 * @return bool
+	 */
+	public static function skip_no_image( $article, array $args ) {
+		if ( empty( $args['show_thumbnails'] ) ) {
+			return false;
+		}
+		$thumb = isset( $article->thumbnail_url ) ? trim( (string) $article->thumbnail_url ) : '';
+		if ( '' !== $thumb ) {
+			return false;
+		}
+		// No thumbnail: keep it only if a fallback image is configured.
+		return '' === $args['fallback_image'];
 	}
 
 	/**
@@ -233,6 +261,9 @@ class RH_Renderer {
 	 * Helper for templates: build the container opening tag with the right
 	 * classes and inline accent variable.
 	 *
+	 * R-LINK-5: the container is a semantic <nav> (related-links navigation).
+	 * Pair with container_close().
+	 *
 	 * @param array  $args   Parsed args.
 	 * @param string $format Format slug for the modifier class.
 	 * @return string
@@ -249,7 +280,19 @@ class RH_Renderer {
 			$style = ' style="--rh-accent:' . esc_attr( $args['accent_color'] ) . '"';
 		}
 
-		return '<section class="' . esc_attr( implode( ' ', $classes ) ) . '"' . $style . '>';
+		$label = $args['heading_text'] ? $args['heading_text'] : __( 'Related articles', 'red-hermanos' );
+
+		return '<nav class="' . esc_attr( implode( ' ', $classes ) ) . '"' . $style
+			. ' aria-label="' . esc_attr( $label ) . '">';
+	}
+
+	/**
+	 * Closing tag paired with container_open().
+	 *
+	 * @return string
+	 */
+	public static function container_close() {
+		return '</nav>';
 	}
 
 	/* ---------------------------------------------------------------------
@@ -276,6 +319,7 @@ class RH_Renderer {
 		wp_register_script( 'rh-embed', $js . 'rh-embed.js', array(), RH_VERSION, true );
 		wp_register_script( 'rh-carousel', $js . 'rh-carousel.js', array(), RH_VERSION, true );
 		wp_register_script( 'rh-ticker', $js . 'rh-ticker.js', array(), RH_VERSION, true );
+		wp_register_script( 'rh-cards', $js . 'rh-cards.js', array(), RH_VERSION, true );
 	}
 
 	/**
@@ -322,6 +366,13 @@ class RH_Renderer {
 		}
 		if ( isset( $formats['ticker'] ) ) {
 			wp_enqueue_script( 'rh-ticker' );
+		}
+
+		// Card-click enhancement (R-LINK-7): whole card is clickable via JS while
+		// crawlers only ever see the single <a> around the title. Needed for the
+		// card-based formats.
+		if ( isset( $formats['cards_grid'] ) || isset( $formats['in_post'] ) || isset( $formats['carousel'] ) ) {
+			wp_enqueue_script( 'rh-cards' );
 		}
 
 		// Image runtime handler only when images may be shown.

@@ -12,6 +12,17 @@
 	vertical-align: text-bottom;
 }
 
+.rh-admin .rh-version {
+	display: inline-block;
+	font-size: 0.55em;
+	font-weight: 600;
+	color: #fff;
+	background: #2271b1;
+	padding: 0.15em 0.5em;
+	border-radius: 10px;
+	vertical-align: middle;
+}
+
 .rh-admin .rh-section-images {
 	margin-top: 2rem;
 	padding-top: 0.5rem;

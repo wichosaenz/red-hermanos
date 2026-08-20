@@ -14,13 +14,21 @@ defined( 'ABSPATH' ) || exit;
 echo RH_Renderer::container_open( $args, 'in_post' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 ?>
 	<?php if ( '' !== $heading ) : ?>
-		<h2 class="rh-related-posts__heading"><?php echo esc_html( $heading ); ?></h2>
+		<h3 class="rh-related-posts__heading"><?php echo esc_html( $heading ); ?></h3>
 	<?php endif; ?>
 	<div class="rh-in-post">
 		<?php
+		$rendered = 0;
 		foreach ( $articles as $article ) {
+			if ( RH_Renderer::skip_no_image( $article, $args ) ) {
+				continue;
+			}
+			if ( $rendered >= (int) $args['count'] ) {
+				break;
+			}
+			++$rendered;
 			include RH_PLUGIN_DIR . 'templates/partials/card.php';
 		}
 		?>
 	</div>
-</section>
+<?php echo RH_Renderer::container_close(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

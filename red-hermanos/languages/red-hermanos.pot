@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0-or-later license.
 msgid ""
 msgstr ""
-"Project-Id-Version: Red Hermanos 1.0.0\n"
+"Project-Id-Version: Red Hermanos 1.2.0\n"
 "Report-Msgid-Bugs-To: https://github.com/wichosaenz/red-hermanos/issues\n"
 "Last-Translator: Everest Ecosystem\n"
 "Language-Team: Everest Ecosystem\n"
@@ -228,4 +228,23 @@ msgid "Previous"
 msgstr ""
 
 msgid "Next"
+msgstr ""
+
+msgid "Related articles"
+msgstr ""
+
+msgid "Updates"
+msgstr ""
+
+msgid "GitHub Access Token (for auto-updates)"
+msgstr ""
+
+msgid "Required only if the plugin repository is private. Create a Personal Access Token at GitHub with 'repo' scope."
+msgstr ""
+
+msgid "Save token"
+msgstr ""
+
+#. translators: %s: plugin version number.
+msgid "Current plugin version: %s"
 msgstr ""

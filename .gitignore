@@ -7,9 +7,10 @@
 .DS_Store
 Thumbs.db
 
-# Dependencies (none used, but guarded)
+# Dependencies
 node_modules/
-/vendor/
+# NOTE: red-hermanos/vendor/plugin-update-checker IS committed (vendored,
+# no Composer) so GitHub auto-updates work on install. Do not ignore it.
 
 # IDE / editor
 .idea/

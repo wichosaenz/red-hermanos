@@ -46,15 +46,16 @@
 	padding: 0.9rem 1rem 1.1rem;
 }
 
-/* Title max 3 lines, excerpt max 2 lines. */
-.rh-card__title {
+/* Title max 3 lines (line-clamp on the anchor inside the h4). */
+.rh-cards-grid .rh-card__title .rh-card__link {
 	display: -webkit-box;
 	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 }
 
-.rh-card__excerpt {
+/* Excerpt max 2 lines. */
+.rh-cards-grid .rh-card-excerpt {
 	display: -webkit-box;
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
@@ -81,8 +82,9 @@
 		grid-template-columns: 1fr;
 	}
 
-	/* Card becomes a horizontal row with the thumb on the left. */
-	.rh-cards-grid .rh-card__link {
+	/* Card becomes a horizontal row with the thumb on the left. The whole
+	   card is the flex container now (no full-card <a> wrapper). */
+	.rh-cards-grid .rh-card {
 		display: flex;
 		align-items: stretch;
 	}
@@ -93,7 +95,16 @@
 		min-height: 96px;
 	}
 
-	.rh-cards-grid .rh-card--noimg .rh-card__link {
+	.rh-cards-grid .rh-card__body {
+		flex: 1 1 60%;
+	}
+
+	/* The source line (favicon + site name) stays on one row on mobile too. */
+	.rh-cards-grid .rh-card-source {
+		flex-wrap: nowrap;
+	}
+
+	.rh-cards-grid .rh-card--noimg {
 		display: block;
 	}
 }

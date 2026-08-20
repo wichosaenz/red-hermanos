@@ -134,15 +134,33 @@ class RH_Rest_API {
 				continue;
 			}
 
+			// Excerpt: filter known junk values. When n8n pulls posts from the
+			// WP REST API with ?_embed, image-size names ("full", "thumbnail",
+			// "medium"…) can leak into the excerpt field. Discard those so the
+			// literal word "full" never renders under a card title.
+			$excerpt          = isset( $art['post_excerpt'] ) ? sanitize_textarea_field( $art['post_excerpt'] ) : '';
+			$invalid_excerpts = array( 'full', 'thumbnail', 'medium', 'large', 'medium_large', 'post-thumbnail' );
+			if ( in_array( strtolower( trim( $excerpt ) ), $invalid_excerpts, true ) ) {
+				$excerpt = '';
+			}
+
+			// Thumbnail: must look like a real image URL, otherwise discard so a
+			// junk string can never become a broken <img>.
+			$thumb = isset( $art['thumbnail_url'] ) && '' !== $art['thumbnail_url'] ? esc_url_raw( $art['thumbnail_url'] ) : '';
+			if ( '' !== $thumb && ! preg_match( '/\.(jpg|jpeg|png|webp|gif)/i', $thumb ) ) {
+				$thumb = '';
+			}
+
 			$data = array(
 				'post_url'         => $post_url,
 				'post_title'       => $title,
-				'post_excerpt'     => isset( $art['post_excerpt'] ) ? sanitize_textarea_field( $art['post_excerpt'] ) : '',
+				'post_excerpt'     => $excerpt,
 				'site_url'         => isset( $art['site_url'] ) ? esc_url_raw( $art['site_url'] ) : '',
 				'site_name'        => isset( $art['site_name'] ) ? sanitize_text_field( $art['site_name'] ) : '',
 				'vertical'         => isset( $art['vertical'] ) ? sanitize_text_field( $art['vertical'] ) : '',
 				'researcher'       => isset( $art['researcher'] ) ? sanitize_text_field( $art['researcher'] ) : '',
-				'thumbnail_url'    => isset( $art['thumbnail_url'] ) && '' !== $art['thumbnail_url'] ? esc_url_raw( $art['thumbnail_url'] ) : '',
+				'thumbnail_url'    => $thumb,
+				'site_icon_url'    => isset( $art['site_icon_url'] ) ? esc_url_raw( $art['site_icon_url'] ) : '',
 				'similarity_score' => isset( $art['similarity_score'] ) ? floatval( $art['similarity_score'] ) : 0,
 				'topic_tag'        => isset( $art['topic_tag'] ) ? sanitize_text_field( $art['topic_tag'] ) : '',
 				'semana_iso'       => $semana,
@@ -152,7 +170,7 @@ class RH_Rest_API {
 				'activo'           => 1,
 			);
 
-			$formats = array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%f', '%s', '%s', '%s', '%s', '%d', '%d' );
+			$formats = array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%f', '%s', '%s', '%s', '%s', '%d', '%d' );
 
 			// $wpdb->insert escapes via the format array.
 			$ok = $wpdb->insert( $table, $data, $formats ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
